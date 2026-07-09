@@ -42,20 +42,23 @@ describe("App", () => {
       ),
     ).toBeInTheDocument();
     expect(screen.getAllByText("待人工確認").length).toBeGreaterThan(0);
+
+    fireEvent.click(screen.getByRole("button", { name: "M-002" }));
+
     expect(screen.getAllByText("未查核").length).toBeGreaterThan(0);
   });
 
-  it("keeps draft CRUD as learner work instead of starter output", () => {
+  it("prepares editable default drafts for all raw records", () => {
     render(<App />);
 
     fireEvent.click(screen.getByRole("button", { name: "整理工作台" }));
 
-    expect(screen.getByText("尚未建立整理草稿")).toBeInTheDocument();
+    expect(screen.getByText("12 / 12")).toBeInTheDocument();
+    expect(screen.getByText("整理草稿")).toBeInTheDocument();
+    expect(screen.getByText("人事時地物")).toBeInTheDocument();
+    expect(screen.getByText(/資料完整度分級/)).toBeInTheDocument();
     expect(
-      screen.getByText(/請 agent 加上建立、編輯、刪除或重設整理草稿/),
-    ).toBeInTheDocument();
-    expect(
-      screen.queryByText(/已產生 \d+ 筆安全邊界草稿/),
+      screen.queryByRole("button", { name: "建立草稿" }),
     ).not.toBeInTheDocument();
   });
 });

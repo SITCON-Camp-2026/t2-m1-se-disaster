@@ -9,6 +9,16 @@ export type Phase0PossibleKind =
 
 export type Phase0Confidence = "low" | "medium" | "high";
 
+export type Phase0ElementStatus = "mentioned" | "unclear" | "missing";
+
+export type Phase0InformationElements = {
+  person: Phase0ElementStatus;
+  event: Phase0ElementStatus;
+  time: Phase0ElementStatus;
+  place: Phase0ElementStatus;
+  object: Phase0ElementStatus;
+};
+
 export type Phase0SuggestedNextStep =
   | "keep_raw"
   | "ask_for_more_info"
@@ -29,6 +39,8 @@ export type Phase0JudgementDraft = {
   messyRecordId: string;
   possibleKind: Phase0PossibleKind;
   confidence: Phase0Confidence;
+  informationElements: Phase0InformationElements;
+  qualityScore: number;
   evidence: string[];
   blockers: string[];
   suggestedNextStep: Phase0SuggestedNextStep;

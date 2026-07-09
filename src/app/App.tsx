@@ -3,7 +3,11 @@ import messyReports from "../fixtures/phase-0/messy-reports.json";
 import { EmptyState } from "../components/EmptyState";
 import { Phase0RawInfoPanel } from "../features/phase-0/Phase0RawInfoPanel";
 import { Phase0Workbench } from "../features/phase-0/Phase0Workbench";
-import type { Phase0MessyRecord } from "../features/phase-0/phase0-types";
+import { createPhase0Judgement } from "../features/phase-0/phase0-heuristics";
+import type {
+  Phase0MessyRecord,
+  Phase0JudgementDraft,
+} from "../features/phase-0/phase0-types";
 
 type TabKey = "raw" | "workbench";
 
@@ -14,15 +18,36 @@ const tabs: Array<{ key: TabKey; label: string }> = [
 
 const phase0Records = messyReports satisfies Phase0MessyRecord[];
 
+function createInitialDrafts(records: Phase0MessyRecord[]) {
+  return new Map(
+    records.map((record) => [record.id, createPhase0Judgement(record)]),
+  );
+}
+
 export function App() {
   const [activeTab, setActiveTab] = useState<TabKey>("raw");
   const [selectedRecordId, setSelectedRecordId] = useState(
     phase0Records[0]?.id ?? "",
   );
+  const [drafts, setDrafts] = useState<Map<string, Phase0JudgementDraft>>(() =>
+    createInitialDrafts(phase0Records),
+  );
 
   function selectForWorkbench(recordId: string) {
     setSelectedRecordId(recordId);
     setActiveTab("workbench");
+  }
+
+  function updateDraft(recordId: string, draft: Phase0JudgementDraft) {
+    setDrafts((prev) => new Map(prev).set(recordId, draft));
+  }
+
+  function deleteDraft(recordId: string) {
+    setDrafts((prev) => {
+      const next = new Map(prev);
+      next.delete(recordId);
+      return next;
+    });
   }
 
   return (
@@ -63,6 +88,9 @@ export function App() {
             records={phase0Records}
             selectedRecordId={selectedRecordId}
             onSelect={setSelectedRecordId}
+            drafts={drafts}
+            onUpdateDraft={updateDraft}
+            onDeleteDraft={deleteDraft}
           />
         )}
       </section>

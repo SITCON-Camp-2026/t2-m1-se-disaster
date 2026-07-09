@@ -13,7 +13,7 @@ describe("phase 0 heuristics", () => {
     );
   });
 
-  it("creates conservative safety placeholders for all records", () => {
+  it("creates conservative editable drafts for all records", () => {
     const judgements = messyReports.map(createPhase0Judgement);
 
     expect(judgements).toHaveLength(messyReports.length);
@@ -21,11 +21,18 @@ describe("phase 0 heuristics", () => {
       judgements.filter((judgement) => judgement.unsafeToActDirectly),
     ).toHaveLength(messyReports.length);
     expect(
-      judgements.filter((judgement) => judgement.possibleKind === "unknown"),
-    ).toHaveLength(messyReports.length);
+      judgements.every(
+        (judgement) =>
+          judgement.qualityScore >= 1 && judgement.qualityScore <= 10,
+      ),
+    ).toBe(true);
     expect(
-      judgements.filter((judgement) => judgement.confidence === "low"),
-    ).toHaveLength(messyReports.length);
+      judgements.every(
+        (judgement) =>
+          Object.keys(judgement.informationElements).join(",") ===
+          "person,event,time,place,object",
+      ),
+    ).toBe(true);
   });
 
   it("does not treat review-needed records as confirmed facts", () => {
@@ -36,10 +43,12 @@ describe("phase 0 heuristics", () => {
     expect(judgement.evidence.join(" ")).not.toContain("verified");
   });
 
-  it("does not infer candidate kind from the starter text", () => {
+  it("keeps AI classification as candidate judgement instead of confirmed fact", () => {
     const judgement = createPhase0Judgement(messyReports[10]);
 
-    expect(judgement.possibleKind).toBe("unknown");
+    expect(judgement.possibleKind).toBe("help_request_candidate");
     expect(judgement.suggestedNextStep).toBe("send_to_human_review");
+    expect(judgement.unsafeToActDirectly).toBe(true);
+    expect(judgement.informationElements.person).toBe("mentioned");
   });
 });

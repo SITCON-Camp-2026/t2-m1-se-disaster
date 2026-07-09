@@ -22,6 +22,25 @@ button {
   font: inherit;
 }
 
+button:not(:disabled) {
+  transition:
+    opacity 150ms ease,
+    transform 150ms ease,
+    border-color 150ms ease,
+    background-color 150ms ease,
+    box-shadow 150ms ease;
+}
+
+button:not(:disabled):active {
+  opacity: 0.58;
+  transform: translateY(1px) scale(0.97);
+}
+
+button:focus-visible {
+  outline: 3px solid rgb(36 93 157 / 35%);
+  outline-offset: 2px;
+}
+
 .layout {
   width: min(1120px, calc(100% - 32px));
   margin: 0 auto;
@@ -169,15 +188,11 @@ button {
 
 .workbench__layout {
   display: grid;
-  grid-template-columns: minmax(150px, 190px) minmax(0, 1fr) minmax(
-      220px,
-      260px
-    );
+  grid-template-columns: minmax(150px, 190px) minmax(0, 1fr);
   gap: 16px;
 }
 
 .workbench__queue,
-.workbench__checklist,
 .judgement-card {
   border: 1px solid #dbe4ef;
   border-radius: 8px;
@@ -213,8 +228,7 @@ button {
   gap: 16px;
 }
 
-.judgement-card h3,
-.workbench__checklist h3 {
+.judgement-card h3 {
   margin-top: 0;
 }
 
@@ -245,8 +259,7 @@ button {
   margin-bottom: 8px;
 }
 
-.judgement-card ul,
-.workbench__checklist ul {
+.judgement-card ul {
   padding-left: 20px;
   line-height: 1.6;
 }
@@ -312,6 +325,306 @@ button {
   color: #9f1f17;
 }
 
+/* Workbench editing styles */
+.judgement-card__editing {
+  display: grid;
+  gap: 16px;
+}
+
+.judgement-card__editing section {
+  display: grid;
+  gap: 8px;
+}
+
+.judgement-card__editing label {
+  display: grid;
+  gap: 4px;
+}
+
+.label-text {
+  font-weight: 600;
+  color: #344054;
+  font-size: 0.9rem;
+}
+
+.judgement-card__editing select,
+.judgement-card__editing textarea,
+.judgement-card__editing input[type="text"] {
+  border: 1px solid #cfd8e3;
+  border-radius: 6px;
+  padding: 8px;
+  font: inherit;
+}
+
+.judgement-card__editing textarea {
+  min-height: 80px;
+  resize: vertical;
+}
+
+.section-heading {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.section-heading h4 {
+  margin: 0;
+}
+
+.section-heading span {
+  color: #5f6b7a;
+  font-size: 0.85rem;
+}
+
+.element-editor,
+.element-grid {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.element-editor label,
+.element-status {
+  min-width: 0;
+  border-radius: 6px;
+  padding: 8px;
+  background: #f4f7fb;
+}
+
+.element-status dt {
+  color: #5f6b7a;
+  font-size: 0.82rem;
+}
+
+.element-status dd {
+  margin: 4px 0 0;
+  font-weight: 700;
+}
+
+.element-status.mentioned {
+  background: #dff7e8;
+  color: #116b37;
+}
+
+.element-status.unclear {
+  background: #fff3cd;
+  color: #8a5a00;
+}
+
+.element-status.missing {
+  background: #fde2e1;
+  color: #9f1f17;
+}
+
+.confidence-buttons {
+  display: flex;
+  gap: 8px;
+}
+
+.confidence-btn {
+  flex: 1;
+  min-width: 0;
+  border: 1px solid #cfd8e3;
+  border-radius: 6px;
+  padding: 8px;
+  background: #ffffff;
+  cursor: pointer;
+}
+
+.confidence-btn:not(:disabled):active {
+  box-shadow: inset 0 2px 5px rgb(23 32 42 / 14%);
+  opacity: 0.72;
+  transform: none;
+}
+
+.confidence-btn.active {
+  border-color: #245d9d;
+  background: #245d9d;
+  color: white;
+}
+
+.list-editor {
+  display: grid;
+  gap: 8px;
+}
+
+.list-item {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 8px;
+  align-items: center;
+}
+
+.list-item input {
+  min-width: 0;
+}
+
+.btn-remove {
+  border: 1px solid #cfd8e3;
+  border-radius: 4px;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  background: #fde2e1;
+  color: #9f1f17;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.btn-remove:hover {
+  background: #f5b4ac;
+}
+
+.btn-add-item {
+  border: 1px dashed #cfd8e3;
+  border-radius: 6px;
+  padding: 8px;
+  background: #f9fafb;
+  color: #5f6b7a;
+  cursor: pointer;
+}
+
+.btn-add-item:hover {
+  background: #eef6ff;
+}
+
+.checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+}
+
+.checkbox-label input {
+  cursor: pointer;
+}
+
+.judgement-card__actions {
+  display: flex;
+  gap: 8px;
+}
+
+.btn-primary,
+.btn-secondary,
+.btn-delete {
+  border: 1px solid #cfd8e3;
+  border-radius: 6px;
+  padding: 8px 16px;
+  background: #ffffff;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.btn-primary {
+  border-color: #245d9d;
+  background: #245d9d;
+  color: white;
+}
+
+.btn-secondary {
+  border-color: #cfd8e3;
+  background: #eef6ff;
+  color: #245d9d;
+}
+
+.btn-delete {
+  border-color: #dbb5b0;
+  background: #fde2e1;
+  color: #9f1f17;
+}
+
+.btn-delete:hover {
+  background: #f5b4ac;
+}
+
+.risk-list {
+  list-style: none;
+  padding-left: 0;
+  display: grid;
+  gap: 6px;
+}
+
+.risk-list li {
+  padding: 8px;
+  border-radius: 6px;
+  background: #fef3c7;
+  color: #92400e;
+  border-left: 3px solid #fbbf24;
+}
+
+.queue-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.queue-header h3 {
+  margin: 0;
+  font-size: 1rem;
+}
+
+.queue-count {
+  font-size: 0.85rem;
+  color: #5f6b7a;
+  font-weight: 600;
+}
+
+.queue-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  text-align: left;
+}
+
+.queue-item.has-draft {
+  font-weight: 600;
+}
+
+.queue-item__badge {
+  font-size: 0.75rem;
+  background: #dff7e8;
+  color: #116b37;
+  border-radius: 999px;
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Fade-in/fade-out animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.workbench__main article {
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+.workbench__queue button:hover {
+  border-color: #245d9d;
+  background: #eef6ff;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  button:not(:disabled) {
+    transition: none;
+  }
+
+  button:not(:disabled):active {
+    opacity: 0.72;
+    transform: none;
+  }
+}
+
 @media (max-width: 860px) {
   .workbench__layout {
     grid-template-columns: 1fr;
@@ -319,5 +632,14 @@ button {
 
   .judgement-summary {
     grid-template-columns: 1fr;
+  }
+
+  .confidence-buttons {
+    flex-wrap: wrap;
+  }
+
+  .element-editor,
+  .element-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
