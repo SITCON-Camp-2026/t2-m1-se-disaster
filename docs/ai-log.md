@@ -39,6 +39,7 @@
 | 10:40 | Phase 0 | 移除右側欄位  | 刪除整理工作台右側進度區塊，將版面改為原始資訊清單與主內容兩欄                            | 採用 ✓         | 只調整畫面配置，不改動原始資訊、查核狀態或 agent 判斷                                                                                                                                 | `src/features/phase-0/Phase0Workbench.tsx`, `src/styles/global.css`                                                                 |
 | 10:45 | Phase 0 | 細分資料線索  | 將草稿分類補上人事時地物檢查，並加入 1 到 10 的資料完整度分級                             | 採用 ✓         | 分級只代表原文線索完整度，不代表資訊已確認或可以直接行動；仍保留人工確認與不可直接行動標示                                                                                            | `src/features/phase-0/phase0-types.ts`, `src/features/phase-0/phase0-heuristics.ts`, `src/features/phase-0/Phase0JudgementCard.tsx` |
 | 10:50 | Phase 0 | 預先建立草稿  | 進入畫面時對每筆原始資訊先產生一份保守預設整理草稿                                        | 採用 ✓         | 讓學員一開始就能比較 12 筆預設整理結果；這仍是草稿與候選判斷，不代表原始資訊已確認                                                                                                    | `src/app/App.tsx`, `tests/app-smoke.test.tsx`                                                                                       |
+| 11:00 | Release 01 | 使用者訪談與需求取捨 | 依照 persona 與主 agent 模板，整理出回報者、資訊整理者、行動者的需求與風險點，並草擬 v1 優先服務的使用者 | 採用 ✓         | 訪談草稿有助於把現有 Phase 0 原型的核心限制說清楚，但我仍補上「來源方式」與「查核狀態」分開呈現的判斷，避免把資料來源誤解為已確認 | `release-packs/01-interview-kit/docs/interview-notes.md`, `release-packs/01-interview-kit/docs/interview-summary.md`, `release-packs/01-interview-kit/docs/decisions.md` |
 
 ## 課後反思
 
