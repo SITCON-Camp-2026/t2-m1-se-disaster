@@ -1,22 +1,21 @@
 import { useState } from "react";
 import messyReports from "../fixtures/phase-0/messy-reports.json";
 import { EmptyState } from "../components/EmptyState";
-import { Phase0RawInfoPanel } from "../features/phase-0/Phase0RawInfoPanel";
-import { Phase0Workbench } from "../features/phase-0/Phase0Workbench";
 import { createPhase0Judgement } from "../features/phase-0/phase0-heuristics";
+import { V1OrganizerWorkbench } from "../features/v1/V1OrganizerWorkbench";
 import type {
   Phase0MessyRecord,
   Phase0JudgementDraft,
 } from "../features/phase-0/phase0-types";
 
-type TabKey = "raw" | "workbench";
+type TabKey = "flow";
 
 const tabs: Array<{ key: TabKey; label: string }> = [
-  { key: "raw", label: "原始資訊" },
-  { key: "workbench", label: "整理工作台" },
+  { key: "flow", label: "流程工作台" },
 ];
 
 const phase0Records = messyReports satisfies Phase0MessyRecord[];
+const appBasePath = import.meta.env.BASE_URL;
 
 function createInitialDrafts(records: Phase0MessyRecord[]) {
   return new Map(
@@ -25,7 +24,7 @@ function createInitialDrafts(records: Phase0MessyRecord[]) {
 }
 
 export function App() {
-  const [activeTab, setActiveTab] = useState<TabKey>("raw");
+  const [activeTab, setActiveTab] = useState<TabKey>("flow");
   const [selectedRecordId, setSelectedRecordId] = useState(
     phase0Records[0]?.id ?? "",
   );
@@ -33,9 +32,16 @@ export function App() {
     createInitialDrafts(phase0Records),
   );
 
-  function selectForWorkbench(recordId: string) {
-    setSelectedRecordId(recordId);
-    setActiveTab("workbench");
+  function selectTab(tabKey: TabKey) {
+    setActiveTab(tabKey);
+
+    if (
+      tabKey === "flow" &&
+      !window.location.pathname.endsWith("/v1/") &&
+      !window.location.pathname.endsWith("/v1")
+    ) {
+      window.history.replaceState(null, "", appBasePath);
+    }
   }
 
   function updateDraft(recordId: string, draft: Phase0JudgementDraft) {
@@ -59,6 +65,10 @@ export function App() {
           第一階段先用 coding agent
           做出可展示的前端原型，再從成果中看見資料品質、角色、狀態與來源的限制。
         </p>
+        <p className="hero__note">
+          這個流程工作台仍使用 Phase 0 原始資訊，練習把需要人工確認、
+          不能直接變成任務與審核後可指派的狀態分清楚。
+        </p>
       </header>
 
       <nav className="tabs" aria-label="第一階段工作區">
@@ -67,7 +77,7 @@ export function App() {
             key={tab.key}
             className={activeTab === tab.key ? "active" : ""}
             type="button"
-            onClick={() => setActiveTab(tab.key)}
+            onClick={() => selectTab(tab.key)}
           >
             {tab.label}
           </button>
@@ -77,14 +87,8 @@ export function App() {
       <section className="panel">
         {phase0Records.length === 0 ? (
           <EmptyState message="目前沒有資料" />
-        ) : activeTab === "raw" ? (
-          <Phase0RawInfoPanel
-            records={phase0Records}
-            selectedRecordId={selectedRecordId}
-            onSelect={selectForWorkbench}
-          />
         ) : (
-          <Phase0Workbench
+          <V1OrganizerWorkbench
             records={phase0Records}
             selectedRecordId={selectedRecordId}
             onSelect={setSelectedRecordId}

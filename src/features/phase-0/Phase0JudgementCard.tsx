@@ -81,6 +81,7 @@ export function Phase0JudgementCard({
   draft,
   isEditing,
   isNew,
+  isHumanApproved = false,
   onEdit,
   onCreate,
   onSave,
@@ -90,6 +91,7 @@ export function Phase0JudgementCard({
   draft: Phase0JudgementDraft;
   isEditing: boolean;
   isNew: boolean;
+  isHumanApproved?: boolean;
   onEdit: () => void;
   onCreate: () => void;
   onSave: (draft: Phase0JudgementDraft) => void;
@@ -98,52 +100,13 @@ export function Phase0JudgementCard({
   const [editedDraft, setEditedDraft] = useState<Phase0JudgementDraft>(
     ensureDraftComplete(draft),
   );
+  const [showHumanReviewNote, setShowHumanReviewNote] = useState(
+    Boolean(draft.humanReviewNote),
+  );
   const risks = detectRisks(record);
 
   function handleSave() {
     onSave(editedDraft);
-  }
-
-  function addEvidence() {
-    setEditedDraft((prev) => ({
-      ...prev,
-      evidence: [...prev.evidence, ""],
-    }));
-  }
-
-  function removeEvidence(index: number) {
-    setEditedDraft((prev) => ({
-      ...prev,
-      evidence: prev.evidence.filter((_, i) => i !== index),
-    }));
-  }
-
-  function updateEvidence(index: number, value: string) {
-    setEditedDraft((prev) => ({
-      ...prev,
-      evidence: prev.evidence.map((e, i) => (i === index ? value : e)),
-    }));
-  }
-
-  function addBlocker() {
-    setEditedDraft((prev) => ({
-      ...prev,
-      blockers: [...prev.blockers, ""],
-    }));
-  }
-
-  function removeBlocker(index: number) {
-    setEditedDraft((prev) => ({
-      ...prev,
-      blockers: prev.blockers.filter((_, i) => i !== index),
-    }));
-  }
-
-  function updateBlocker(index: number, value: string) {
-    setEditedDraft((prev) => ({
-      ...prev,
-      blockers: prev.blockers.map((b, i) => (i === index ? value : b)),
-    }));
   }
 
   function updateInformationElement(
@@ -173,7 +136,13 @@ export function Phase0JudgementCard({
           <p className="eyebrow">整理分類</p>
           <h3>{!isNew ? "整理草稿" : "新建整理"}</h3>
         </div>
-        <StatusBadge status={record.verificationStatus} />
+        {isHumanApproved ? (
+          <span className="status-badge status-practice-approved">
+            已人工確認
+          </span>
+        ) : (
+          <StatusBadge status={record.verificationStatus} />
+        )}
       </div>
 
       {!isEditing && isNew ? (
@@ -262,77 +231,31 @@ export function Phase0JudgementCard({
           </section>
 
           <section>
-            <label>
+            <div>
               <span className="label-text">
                 資料完整度分級：{editedDraft.qualityScore} / 10
               </span>
-              <input
-                type="range"
-                min="1"
-                max="10"
-                value={editedDraft.qualityScore}
-                onChange={(e) => updateQualityScore(Number(e.target.value))}
-              />
-            </label>
-          </section>
-
-          <section>
-            <h4>證據與依據</h4>
-            <div className="list-editor">
-              {editedDraft.evidence.map((item, idx) => (
-                <div key={idx} className="list-item">
-                  <input
-                    type="text"
-                    value={item}
-                    onChange={(e) => updateEvidence(idx, e.target.value)}
-                    placeholder="寫出原文中看得出來的判斷依據"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => removeEvidence(idx)}
-                    className="btn-remove"
-                  >
-                    ✕
-                  </button>
-                </div>
-              ))}
-              <button
-                type="button"
-                onClick={addEvidence}
-                className="btn-add-item"
+              <div
+                className="quality-dots"
+                role="group"
+                aria-label="資料完整度分級"
               >
-                + 加一筆
-              </button>
-            </div>
-          </section>
-
-          <section>
-            <h4>卡住的地方</h4>
-            <div className="list-editor">
-              {editedDraft.blockers.map((item, idx) => (
-                <div key={idx} className="list-item">
-                  <input
-                    type="text"
-                    value={item}
-                    onChange={(e) => updateBlocker(idx, e.target.value)}
-                    placeholder="寫出無法判斷或無法行動的原因"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => removeBlocker(idx)}
-                    className="btn-remove"
-                  >
-                    ✕
-                  </button>
-                </div>
-              ))}
-              <button
-                type="button"
-                onClick={addBlocker}
-                className="btn-add-item"
-              >
-                + 加一筆
-              </button>
+                {Array.from({ length: 10 }, (_, index) => index + 1).map(
+                  (score) => (
+                    <button
+                      aria-label={`資料完整度 ${score}`}
+                      className={`quality-dot quality-dot-${score} ${
+                        editedDraft.qualityScore === score ? "active" : ""
+                      }`}
+                      key={score}
+                      type="button"
+                      onClick={() => updateQualityScore(score)}
+                    >
+                      {score}
+                    </button>
+                  ),
+                )}
+              </div>
             </div>
           </section>
 
@@ -359,45 +282,45 @@ export function Phase0JudgementCard({
           </section>
 
           <section>
-            <label className="checkbox-label">
-              <input
-                type="checkbox"
-                checked={editedDraft.unsafeToActDirectly}
-                onChange={(e) =>
-                  setEditedDraft((prev) => ({
-                    ...prev,
-                    unsafeToActDirectly: e.target.checked,
-                  }))
-                }
-              />
-              <span>不可直接行動</span>
-            </label>
+            <button
+              type="button"
+              className={`note-toggle ${showHumanReviewNote ? "active" : ""}`}
+              aria-pressed={showHumanReviewNote}
+              onClick={() => setShowHumanReviewNote((isShowing) => !isShowing)}
+            >
+              {showHumanReviewNote ? "收合人工審核備註" : "填寫人工審核備註"}
+            </button>
+            {showHumanReviewNote && (
+              <label>
+                <span className="label-text">人工審核備註</span>
+                <textarea
+                  value={editedDraft.humanReviewNote ?? ""}
+                  onChange={(e) =>
+                    setEditedDraft((prev) => ({
+                      ...prev,
+                      humanReviewNote: e.target.value,
+                    }))
+                  }
+                  placeholder="記錄人類質疑、修正或補充的意見"
+                />
+              </label>
+            )}
           </section>
 
-          <section>
-            <label>
-              <span className="label-text">人工審核備註</span>
-              <textarea
-                value={editedDraft.humanReviewNote ?? ""}
-                onChange={(e) =>
-                  setEditedDraft((prev) => ({
-                    ...prev,
-                    humanReviewNote: e.target.value,
-                  }))
-                }
-                placeholder="記錄人類質疑、修正或補充的意見"
-              />
-            </label>
-          </section>
-
-          <div className="judgement-card__actions">
-            <button type="button" onClick={handleSave} className="btn-primary">
-              保存
-            </button>
-            <button type="button" onClick={onDelete} className="btn-delete">
-              刪除
-            </button>
-          </div>
+          {!isHumanApproved && (
+            <div className="judgement-card__actions">
+              <button
+                type="button"
+                onClick={handleSave}
+                className="btn-primary"
+              >
+                保存
+              </button>
+              <button type="button" onClick={onDelete} className="btn-delete">
+                刪除
+              </button>
+            </div>
+          )}
         </div>
       ) : null}
 
@@ -447,24 +370,6 @@ export function Phase0JudgementCard({
             </section>
           )}
 
-          <section>
-            <h4>證據與依據</h4>
-            <ul>
-              {editedDraft.evidence.map((item) => (
-                <li key={item}>{item}</li>
-              ))}
-            </ul>
-          </section>
-
-          <section>
-            <h4>卡住的地方</h4>
-            <ul>
-              {editedDraft.blockers.map((item) => (
-                <li key={item}>{item}</li>
-              ))}
-            </ul>
-          </section>
-
           {editedDraft.humanReviewNote && (
             <section>
               <h4>人工審核意見</h4>
@@ -472,14 +377,16 @@ export function Phase0JudgementCard({
             </section>
           )}
 
-          <div className="judgement-card__actions">
-            <button type="button" onClick={onEdit} className="btn-secondary">
-              編輯
-            </button>
-            <button type="button" onClick={onDelete} className="btn-delete">
-              刪除
-            </button>
-          </div>
+          {!isHumanApproved && (
+            <div className="judgement-card__actions">
+              <button type="button" onClick={onEdit} className="btn-secondary">
+                編輯
+              </button>
+              <button type="button" onClick={onDelete} className="btn-delete">
+                刪除
+              </button>
+            </div>
+          )}
         </div>
       ) : null}
     </article>
